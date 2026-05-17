@@ -6,6 +6,9 @@ from plasTeX.Logging import getLogger
 from plasTeX.Tokenizer import Tokenizer, Token, DEFAULT_CATEGORIES, VERBATIM_CATEGORIES, EndInput
 
 def _tokenize(s, context):
+    # Tokenizer signals end-of-input by raising EndInput rather than StopIteration
+    # (required since PEP 479 makes StopIteration inside a generator a RuntimeError).
+    # This wrapper catches EndInput so callers get a plain list instead of an exception.
     try:
         return [x for x in Tokenizer(s, context)]
     except EndInput:
