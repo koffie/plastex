@@ -18,8 +18,12 @@ from plasTeX.Renderers.PageTemplate.simpletal.simpleTALES import Context as TALC
 log = plasTeX.Logging.getLogger()
 
 # Support for Jinja2 templates
-try: 
-    from jinja2 import Environment, contextfunction
+try:
+    from jinja2 import Environment
+    try:
+        from jinja2 import pass_context
+    except ImportError:
+        from jinja2 import contextfunction as pass_context
 except ImportError:
     def jinja2template(s, encoding='utf8'):
         def renderjinja2(obj):
@@ -30,8 +34,8 @@ else:
         import ipdb as pdb
     except ImportError:
         import pdb
-        
-    @contextfunction
+
+    @pass_context
     def debug(context):
         pdb.set_trace()
 
@@ -40,7 +44,7 @@ else:
         env.globals['debug'] = debug
 
         def renderjinja2(obj, s=s):
-            tvars = {'here':obj, 
+            tvars = {'here':obj,
                      'obj':obj,
                      'container':obj.parentNode,
                      'config':obj.ownerDocument.config,
@@ -48,7 +52,7 @@ else:
                      'templates':obj.renderer}
 
             tpl = env.from_string(s)
-            return tpl.render(tvars) 
+            return tpl.render(tvars)
 
         return renderjinja2
 
