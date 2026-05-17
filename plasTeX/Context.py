@@ -3,7 +3,13 @@
 from plasTeX import ismacro, macroName
 from plasTeX.DOM import Node
 from plasTeX.Logging import getLogger
-from plasTeX.Tokenizer import Tokenizer, Token, DEFAULT_CATEGORIES, VERBATIM_CATEGORIES
+from plasTeX.Tokenizer import Tokenizer, Token, DEFAULT_CATEGORIES, VERBATIM_CATEGORIES, EndInput
+
+def _tokenize(s, context):
+    try:
+        return [x for x in Tokenizer(s, context)]
+    except EndInput:
+        return []
 import os
 import configparser
 import re
@@ -953,10 +959,10 @@ class Context(object):
         assert isinstance(nargs, int), 'nargs must be an integer'
 
         if isinstance(definition, str):
-            definition = [x for x in Tokenizer(definition, self)]
+            definition = _tokenize(definition, self)
 
         if isinstance(opt, str):
-            opt = [x for x in Tokenizer(opt, self)]
+            opt = _tokenize(opt, self)
 
         macrolog.debug('creating newcommand %s', name)
         newclass = type(name, (plasTeX.NewCommand,),
@@ -999,12 +1005,12 @@ class Context(object):
             assert len(definition) == 2, 'definition must have 2 elements'
 
             if isinstance(definition[0], str):
-                definition[0] = [x for x in Tokenizer(definition[0], self)]
+                definition[0] = _tokenize(definition[0], self)
             if isinstance(definition[1], str):
-                definition[1] = [x for x in Tokenizer(definition[1], self)]
+                definition[1] = _tokenize(definition[1], self)
 
         if isinstance(opt, str):
-            opt = [x for x in Tokenizer(opt, self)]
+            opt = _tokenize(opt, self)
 
         macrolog.debug('creating newenvironment %s', name)
 
@@ -1043,7 +1049,7 @@ class Context(object):
 #           macrolog.debug('redefining definition "%s"', name)
 
         if isinstance(definition, str):
-            definition = [x for x in Tokenizer(definition, self)]
+            definition = _tokenize(definition, self)
 
         macrolog.debug('creating def %s', name)
         newclass = type(name, (plasTeX.Definition,),
