@@ -4,7 +4,7 @@
 C.5 Classes, Packages, and Page Styles (p176)
 
 """
-import sys, os
+import sys, os, traceback
 from plasTeX import Command, Environment, DimenCommand, Token
 from plasTeX.Logging import getLogger
 
@@ -24,6 +24,7 @@ class PackageLoader(Command):
                     tex, file+self.extension, options or {})
         except Exception as msg:
             log.error('Could not load package "%s": %s' % (file, msg))
+            traceback.print_exc()
 
 #
 # C.5.1 Document Class
